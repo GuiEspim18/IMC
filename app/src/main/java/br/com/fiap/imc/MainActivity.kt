@@ -1,5 +1,6 @@
 package br.com.fiap.imc
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +34,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +61,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             IMCTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(colorResource(id = R.color.white)),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     IMC()
@@ -65,33 +73,53 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun IMC() {
+
+    var weigth by remember {
+        mutableStateOf("")
+    }
+
+    var height by remember {
+        mutableStateOf("")
+    }
+
+    var result by remember {
+        mutableStateOf(0.0)
+    }
+
+    var status by remember {
+        mutableStateOf("")
+    }
+
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(id = R.color.white)),
     ) {
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Column (
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(160.dp)
+                    .height(180.dp)
                     .background(colorResource(id = R.color.red_fiap))
             ) {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(42.dp))
                 Image(
                     painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Fat image",
+                    contentDescription = "Logo",
                     modifier = Modifier
                         .size(60.dp)
 //                        .background(Color.Magenta)
                         .clip(shape = CircleShape),
                     contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Calculadora IMC",
                     color = colorResource(id = R.color.text_color),
@@ -99,13 +127,13 @@ fun IMC() {
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Column (
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Card (
+                Card(
                     modifier = Modifier
 //                        .height(300.dp)
                         .fillMaxWidth()
@@ -118,7 +146,7 @@ fun IMC() {
                     ),
                     shape = RoundedCornerShape(4.dp)
                 ) {
-                    Column (
+                    Column(
                         modifier = Modifier
                             .padding(vertical = 16.dp, horizontal = 32.dp)
                     ) {
@@ -139,9 +167,9 @@ fun IMC() {
                             color = colorResource(id = R.color.red_fiap)
                         )
                         OutlinedTextField(
-                            value = "",
+                            value = weigth,
                             onValueChange = {
-
+                                weigth = it
                             },
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = {
@@ -149,38 +177,46 @@ fun IMC() {
                             },
                             colors = OutlinedTextFieldDefaults.colors(
                                 unfocusedBorderColor = colorResource(id = R.color.red_fiap),
-                                focusedBorderColor = colorResource(id = R.color.red_fiap)
+                                focusedBorderColor = colorResource(id = R.color.red_fiap),
+                                unfocusedTextColor = colorResource(id = R.color.red_fiap),
+                                focusedTextColor = colorResource(id = R.color.red_fiap),
                             ),
                             shape = RoundedCornerShape(16.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                         Spacer(modifier = Modifier.height(32.dp))
                         Text(
-                            text = "Seu Peso",
+                            text = "Sua Altura",
                             modifier = Modifier.padding(bottom = 8.dp),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Normal,
                             color = colorResource(id = R.color.red_fiap)
                         )
                         OutlinedTextField(
-                            value = "",
+                            value = height,
                             onValueChange = {
-
+                                height = it
                             },
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = {
-                                Text(text = "Seu peso em Kg.")
+                                Text(text = "Sua altura em cm.")
                             },
                             colors = OutlinedTextFieldDefaults.colors(
                                 unfocusedBorderColor = colorResource(id = R.color.red_fiap),
-                                focusedBorderColor = colorResource(id = R.color.red_fiap)
+                                focusedBorderColor = colorResource(id = R.color.red_fiap),
+                                unfocusedTextColor = colorResource(id = R.color.red_fiap),
+                                focusedTextColor = colorResource(id = R.color.red_fiap),
                             ),
                             shape = RoundedCornerShape(16.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                         )
                         Spacer(modifier = Modifier.height(32.dp))
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                result = calculate(weigth.toDouble(), height.toDouble())
+                                status = getStatus(result)
+
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),
@@ -198,11 +234,11 @@ fun IMC() {
 
                 }
 
-                Card (
+                Card(
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF399E39)
+                        containerColor = statusColor(result)
                     ),
                     elevation = CardDefaults.elevatedCardElevation(
                         defaultElevation = 4.dp
@@ -212,7 +248,7 @@ fun IMC() {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical =  32.dp, horizontal = 20.dp),
+                            .padding(vertical = 32.dp, horizontal = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
@@ -222,16 +258,18 @@ fun IMC() {
                                 fontSize = 20.sp
                             )
                             Text(
-                                text = "Peso Ideal",
+                                text = status,
                                 color = colorResource(id = R.color.text_color),
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 25.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .width(200.dp)
                             )
                         }
                         Text(
-                            text = "23.2",
+                            text = String.format("%.1f", result),
                             color = colorResource(id = R.color.text_color),
-                            fontSize = 50.sp,
+                            fontSize = 40.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -243,7 +281,7 @@ fun IMC() {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun IMCPreview () {
+fun IMCPreview() {
     IMCTheme {
         IMC()
     }
